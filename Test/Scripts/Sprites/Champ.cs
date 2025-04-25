@@ -11,13 +11,18 @@ namespace test
 {
     public Controller _controller;
 
-    public float Speed = 100f;
+    public float Speed;
 
-    private bool _isPausedDuringCast = false;
+    private bool _isCasting = false;
     private float _pauseTimer = 0f;
     private float _pauseDuration = 0f;
 
-    protected List<Ability> _abilities = new();
+     protected List<Ability> _abilities = new List<Ability>();
+
+    public List<Ability> GetAbilities() => _abilities;
+
+    public Stats BaseStats { get; set; } = new Stats();
+
 
     public Champ(Texture2D texture, Controller controller) : base(texture)
     {
@@ -31,17 +36,17 @@ namespace test
         foreach (var ability in _abilities)
             ability.Update(gameTime);
 
-        if (_isPausedDuringCast)
+        if (_isCasting)
         {
             _pauseTimer += deltaTime;
             if (_pauseTimer >= _pauseDuration)
             {
-                _isPausedDuringCast = false;
+                _isCasting = false;
                 _pauseTimer = 0f;
             }
         }
 
-        if (!_isPausedDuringCast)
+        if (!_isCasting)
         {
             _controller.Update(gameTime, this);
             HandleInput(sprites);
@@ -57,7 +62,7 @@ namespace test
 
     public void PauseCasting(float duration)
     {
-        _isPausedDuringCast = true;
+        _isCasting = true;
         _pauseDuration = duration;
         _pauseTimer = 0f;
     }
