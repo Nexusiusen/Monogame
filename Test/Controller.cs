@@ -3,14 +3,23 @@ using Microsoft.Xna.Framework.Input;
 
 namespace test
 {
-    public class BallMouseMovementController : IController
+    public class Controller : IController
     {
-        private Vector2 _targetPosition;
+        public Vector2 _targetPosition;
         private bool _isMoving;
+        private KeyboardState _currentKey;
+        private KeyboardState _previousKey;
+        public bool SpacingAbility = false;
+        public bool EffectAbility = false;
+        public bool MobilityAbility = false;
+        public bool UltimateAbility = false;
 
-        public void Update(GameTime gameTime, Sprite sprite)
+
+        public void Update(GameTime gameTime, Champ sprite)
         {
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            _previousKey = _currentKey;
+            _currentKey = Keyboard.GetState();
 
             var mouse = Mouse.GetState();
             var keyboard = Keyboard.GetState();
@@ -19,12 +28,14 @@ namespace test
             {
                 _targetPosition = new Vector2(mouse.X, mouse.Y);
                 _isMoving = true;
+                
             }
 
             if (keyboard.IsKeyDown(Keys.S) && _isMoving)
             {
                 _targetPosition = sprite.Position;
                 _isMoving = false;
+                
             }
 
             if (_isMoving)
@@ -36,6 +47,7 @@ namespace test
                 {
                     sprite.Position = _targetPosition;
                     _isMoving = false;
+                    
                 }
                 else
                 {
@@ -48,6 +60,26 @@ namespace test
                         _isMoving = false;
                     }
                 }
+            }
+            // Trigger on q press only (not hold)
+            if (_currentKey.IsKeyDown(Keys.Q) && _previousKey.IsKeyUp(Keys.Q))
+            {
+                SpacingAbility = true;
+            }
+
+            if (_currentKey.IsKeyDown(Keys.W) && _previousKey.IsKeyUp(Keys.W))
+            {
+                EffectAbility = true;
+            }
+
+            if (_currentKey.IsKeyDown(Keys.E) && _previousKey.IsKeyUp(Keys.E))
+            {
+                MobilityAbility = true;
+            }
+
+            if (_currentKey.IsKeyDown(Keys.R) && _previousKey.IsKeyUp(Keys.R))
+            {
+                UltimateAbility = true;
             }
         }
     }

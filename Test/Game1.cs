@@ -1,4 +1,5 @@
-﻿using System.Reflection.Metadata.Ecma335;
+﻿using System.Collections.Generic;
+using System.Reflection.Metadata.Ecma335;
 using Microsoft.VisualBasic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -8,19 +9,18 @@ namespace test;
 
 public class Game1 : Game
 {
-    private Sprite _sprite1;
-    private Sprite _sprite2;
-
-    private Sprite ballSprite;
-
-    Texture2D ballTexture;
-    Vector2 ballPosition;
-    Vector2 targetPosition;
-
-    bool isMoving;
-    float ballSpeed;
+    private Unit _sprite1;
+    private Unit _sprite2;
+    private Unit ballSprite;
+    private Texture2D ballTexture;
+    private Vector2 ballPosition;
+    private float ballSpeed;
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
+
+    private List<Sprite> _sprites;
+
+
 
     public Game1()
     {
@@ -33,12 +33,8 @@ public class Game1 : Game
     {
         // TODO: Add your initialization logic here
         ballPosition = new Vector2(_graphics.PreferredBackBufferWidth / 2, _graphics.PreferredBackBufferHeight / 2);
-        ballSpeed = 10f; 
-        
-        ControlFlowBuilder 
+        ballSpeed = 150f; 
 
-        ballSprite.Position = ballPosition;
-        ballSprite.Speed = ballSpeed;
 
         base.Initialize();
     }
@@ -47,79 +43,75 @@ public class Game1 : Game
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-        _sprite1 = new Sprite(Content.Load<Texture2D>("ball"));
-        _sprite1.Position = new Vector2(100, 100);
-        _sprite2 = new Sprite(Content.Load<Texture2D>("ball")){
-            Position = new Vector2(200, 200),
-            Speed = 5f
-
-        };
+        
 
         // TODO: use this.Content to load your game content here
         ballTexture = Content.Load<Texture2D>("ball");
-        ballSprite = new Sprite(Content.Load<Texture2D>("ball"));
+
+        ballSprite = new Unit(ballTexture,  new Controller())
+        {
+            Position = ballPosition,
+            Speed = ballSpeed
+        };
+
+        _sprite1 = new Unit(Content.Load<Texture2D>("ball"),  new Controller())
+        {
+            Position = new Vector2(100, 100),
+            Speed = 100f
+        };
+
+        _sprite2 = new Unit(Content.Load<Texture2D>("ball"),  new Controller())
+        {
+            Position = new Vector2(200, 200),
+            Speed = 200f
+        };
         
         // Load the ball texture
+
+        var shipTexture = Content.Load<Texture2D>("ball");
+        _sprites = new List<Sprite>()
+        {
+            new Champ(shipTexture, new Controller()){
+                Position = new Vector2(100, 100),
+            }
+        };
     }
 
     protected override void Update(GameTime gameTime)
     {
-        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
+            Keyboard.GetState().IsKeyDown(Keys.Escape))
+        {
             Exit();
-
-        // TODO: Add your update logic here
-
-        ballSprite.Update(gameTime);
-        
-        
-
-        //the time since update was called last
-        float updateBallSpeed = ballSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-        var kstate = Keyboard.GetState();
-
-        var mstate = Mouse.GetState();
-        if (mstate.RightButton == ButtonState.Pressed)
-        {
-            targetPosition = new Vector2(mstate.X, mstate.Y);
-            isMoving = true;
         }
 
-        if (isMoving)
-{
-    Vector2 direction = targetPosition - ballPosition;
-    float distance = direction.Length();
-
-    if (distance < 1f)
-    {
-        // Close enough to stop
-        isMoving = false;
-        ballPosition = targetPosition;
-    }
-    else
-    {
-        direction.Normalize();
-        ballPosition += direction * ballSpeed * updateBallSpeed;
-
-        // Clamp if overshooting
-        if ((targetPosition - ballPosition).LengthSquared() > distance * distance)
+        foreach (var sprite in _sprites.ToArray())
         {
-            ballPosition = targetPosition;
-            isMoving = false;
+            sprite.Update(gameTime, _sprites);
         }
-    }
-}
 
-        if (kstate.IsKeyDown(Keys.S))
-        {
-           
-           if(isMoving)
-           {
-               targetPosition = ballPosition;
-           }
-        }
+        PostUpdate();
+
+        // Update each sprite
+        /* _sprite1.Update(gameTime);
+        _sprite2.Update(gameTime);
+        ballSprite.Update(gameTime); */
+
         base.Update(gameTime);
     }
+
+    private void PostUpdate()
+    {
+        for (int i = 0; i < _sprites.Count; i++)
+        {
+            if (_sprites[i].IsRemoved)
+            {
+                _sprites.RemoveAt(i);
+                i--;
+            }
+        }
+    }
+
 
     protected override void Draw(GameTime gameTime)
     {
@@ -127,7 +119,12 @@ public class Game1 : Game
 
         // TODO: Add your drawing code here
         _spriteBatch.Begin();
-        ballSprite.Draw(_spriteBatch);
+        /* foreach (var sprite in _sprites)
+        {
+            sprite.Draw(_spriteBatch);
+        } */
+
+
        // _spriteBatch.Draw(ballTexture, ballPosition, null, Color.White,0f,new Vector2(ballTexture.Width / 2, ballTexture.Height / 2), Vector2.One, SpriteEffects.None, 0f);
 
         _spriteBatch.End();

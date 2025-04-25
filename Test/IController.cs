@@ -4,6 +4,6 @@ namespace test
 {
     public interface IController
     {
-        void Update(GameTime gameTime, Sprite sprite);
+        void Update(GameTime gameTime, Champ sprite);
     }
 }
