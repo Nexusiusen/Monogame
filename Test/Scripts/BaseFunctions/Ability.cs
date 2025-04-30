@@ -12,38 +12,32 @@ namespace test
 
     public abstract class Ability
     {
+        public Timer CooldownTimer { get; private set; }
         public float WindupTime { get; protected set; }
         public float PauseTime { get; protected set; }
         public float Cooldown { get; protected set; }
         public AbilityType Type { get; protected set; }
 
-        protected float _cooldownTimer = 0f;
-        protected bool _isOnCooldown = false;
+        public bool CanActivate => CooldownTimer == null || !CooldownTimer.IsRunning;
 
-        public bool CanActivate => !_isOnCooldown;
-
-        public float RemainingCooldown => _isOnCooldown ? (Cooldown - _cooldownTimer) : 0f;
-
+        public float RemainingCooldown => CooldownTimer != null && CooldownTimer.IsRunning
+            ? Cooldown - CooldownTimer.TimeElapsed
+            : 0f;
 
         public abstract void Activate(Champ champ, List<Sprite> sprites);
 
         public virtual void Update(GameTime gameTime)
         {
-            if (_isOnCooldown)
-            {
-                _cooldownTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
-                if (_cooldownTimer >= Cooldown)
-                {
-                    _isOnCooldown = false;
-                    _cooldownTimer = 0f;
-                }
-            }
+            CooldownTimer?.Update(gameTime);
         }
 
         protected void StartCooldown()
         {
-            _isOnCooldown = true;
-            _cooldownTimer = 0f;
+            CooldownTimer = new Timer(Cooldown, () =>
+            {
+                // Cooldown complete — nothing to do unless you want to signal something
+                // e.g. Console.WriteLine("Cooldown finished!");
+            });
         }
     }
 }

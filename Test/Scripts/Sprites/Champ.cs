@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -8,64 +7,51 @@ using Microsoft.Xna.Framework.Input;
 namespace test
 {
     public class Champ : Sprite
-{
-    public Controller _controller;
-
-    public float Speed;
-
-    private bool _isCasting = false;
-    private float _pauseTimer = 0f;
-    private float _pauseDuration = 0f;
-
-     protected List<Ability> _abilities = new List<Ability>();
-
-    public List<Ability> GetAbilities() => _abilities;
-
-    public Stats BaseStats { get; set; } = new Stats();
-
-
-    public Champ(Texture2D texture, Controller controller) : base(texture)
     {
-        _controller = controller;
-    }
+        public Controller _controller;
+        public float Speed;
 
-    public override void Update(GameTime gameTime, List<Sprite> sprites)
-    {
-        float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+        private Timer _castingPauseTimer;
 
-        foreach (var ability in _abilities)
-            ability.Update(gameTime);
+        protected List<Ability> _abilities = new List<Ability>();
+        public List<Ability> GetAbilities() => _abilities;
 
-        if (_isCasting)
+        public Stats BaseStats { get; set; } = new Stats();
+
+        public Champ(Texture2D texture, Controller controller) : base(texture)
         {
-            _pauseTimer += deltaTime;
-            if (_pauseTimer >= _pauseDuration)
+            _controller = controller;
+        }
+
+        public override void Update(GameTime gameTime, List<Sprite> sprites)
+        {
+            foreach (var ability in _abilities)
+                ability.Update(gameTime);
+
+            _castingPauseTimer?.Update(gameTime);
+
+            if (!IsCasting)
             {
-                _isCasting = false;
-                _pauseTimer = 0f;
+                _controller.Update(gameTime, this);
+                HandleInput(sprites);
             }
+
+            Direction = Vector2.Normalize(_controller._targetPosition - Position);
         }
 
-        if (!_isCasting)
+        protected virtual void HandleInput(List<Sprite> sprites)
         {
-            _controller.Update(gameTime, this);
-            HandleInput(sprites);
+            // To be overridden by specific champs like Kyle
         }
 
-        Direction = Vector2.Normalize(_controller._targetPosition - Position);
-    }
+        public void PauseCasting(float duration)
+        {
+            _castingPauseTimer = new Timer(duration, () =>
+            {
+                _castingPauseTimer = null;
+            });
+        }
 
-    protected virtual void HandleInput(List<Sprite> sprites)
-    {
-        // To be overridden by derived champs like Kyle
+        public bool IsCasting => _castingPauseTimer != null && _castingPauseTimer.IsRunning;
     }
-
-    public void PauseCasting(float duration)
-    {
-        _isCasting = true;
-        _pauseDuration = duration;
-        _pauseTimer = 0f;
-    }
-}
-
 }
