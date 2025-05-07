@@ -8,9 +8,8 @@ namespace test{
         protected Vector2 _startPosition;
         public float MaxRange = 400f; // Set this to how far bullets should travel
 
-        public Projectile(Texture2D texture):base (texture)
+        public Projectile(Texture2D texture, float scale) : base(texture, scale)
         {
-
         }
 
        public override void Update(GameTime gameTime, List<Sprite> sprites)

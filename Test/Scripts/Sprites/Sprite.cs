@@ -9,6 +9,8 @@ namespace test
     public class Sprite : ICloneable
     {
         protected Texture2D _texture;
+        
+        protected float _scale=1f;
         protected float _rotation;
         protected KeyboardState _currentKey;
         protected KeyboardState _previousKey;
@@ -24,8 +26,9 @@ namespace test
         
         public bool IsRemoved = false;
 
-        public Sprite(Texture2D texture){
+        public Sprite(Texture2D texture, float scale){
             _texture = texture;
+            _scale = scale;
             Origin = new Vector2(_texture.Width / 2, _texture.Height / 2);
         }
 
@@ -34,7 +37,7 @@ namespace test
         }
 
         public virtual void Draw(SpriteBatch spriteBatch){
-            spriteBatch.Draw(_texture, Position, null, Color.White, _rotation,Origin, Vector2.One, SpriteEffects.None, 0f);
+            spriteBatch.Draw(_texture, Position, null, Color.White, _rotation,Origin, _scale, SpriteEffects.None, 0f);
         }
 
         public object Clone()

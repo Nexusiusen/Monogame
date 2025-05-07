@@ -41,8 +41,9 @@ public class Game1 : Game
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-        var shipTexture = Content.Load<Texture2D>("ball");
-        _player = new Kyle(shipTexture, new Controller())
+        var champTexture = Content.Load<Texture2D>("ezreal");
+        var bulletTexture = Content.Load<Texture2D>("ball");
+        _player = new Kyle(champTexture,bulletTexture, new Controller(),.1f)
         {
             Position = new Vector2(100, 100),
             Speed=150f,

@@ -14,10 +14,10 @@ namespace test
 
         private Texture2D _bulletTexture;
 
-        public Kyle(Texture2D texture, Controller controller): base(texture, controller)
+        public Kyle(Texture2D texture, Texture2D bulletTexture, Controller controller, float scale): base(texture, controller, scale)
         {
-            _bulletTexture = texture; // Assuming the bullet uses the same texture as the champ for simplicity
-            _bulletTemplate = new Projectile(_bulletTexture);
+            _bulletTexture = bulletTexture; // Assuming the bullet uses the same texture as the champ for simplicity
+            _bulletTemplate = new Projectile(_bulletTexture, 1f);
 
             _abilities.Add(new FireBullet(_bulletTemplate));
 

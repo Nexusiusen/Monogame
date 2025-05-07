@@ -18,7 +18,7 @@ namespace test
 
         public Stats BaseStats { get; set; } = new Stats();
 
-        public Champ(Texture2D texture, Controller controller) : base(texture)
+        public Champ(Texture2D texture, Controller controller, float scale) : base(texture, scale)
         {
             _controller = controller;
         }
