@@ -16,7 +16,6 @@ namespace test
         protected List<Ability> _abilities = new List<Ability>();
         public List<Ability> GetAbilities() => _abilities;
 
-        public Stats BaseStats { get; set; } = new Stats();
 
         public Champ(Texture2D texture, Controller controller, float scale) : base(texture, scale)
         {
